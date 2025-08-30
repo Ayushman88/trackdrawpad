@@ -54,6 +54,28 @@ export default function CircularToolbox({
     }
   };
 
+  // Handle touch events for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    // Allow dragging from the main circular button or header area
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(".toolbox-header") ||
+      target.closest(".toolbox-title") ||
+      target.closest(".toolbox-main-button")
+    ) {
+      e.preventDefault();
+      setIsDragging(true);
+
+      const touch = e.touches[0];
+      // Calculate offset from current position, not from element bounds
+      setDragOffset({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y,
+      });
+      console.log("📱 Started dragging toolbox from position:", position);
+    }
+  };
+
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging) {
       const newX = e.clientX - dragOffset.x;
@@ -84,6 +106,49 @@ export default function CircularToolbox({
           y: constrainedY,
         });
       }
+    }
+  };
+
+  // Handle touch move for mobile
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging) {
+      e.preventDefault(); // Prevent scrolling while dragging
+      const touch = e.touches[0];
+      const newX = touch.clientX - dragOffset.x;
+      const newY = touch.clientY - dragOffset.y;
+
+      // In fullscreen mode, allow dragging anywhere
+      // Otherwise, constrain to screen bounds
+      let constrainedX = newX;
+      let constrainedY = newY;
+
+      if (!document.fullscreenElement) {
+        const maxX = window.innerWidth - 220; // toolbox width
+        const maxY = window.innerHeight - 300; // toolbox height
+        constrainedX = Math.max(0, Math.min(newX, maxX));
+        constrainedY = Math.max(0, Math.min(newY, maxY));
+      }
+
+      // Update position immediately for smooth dragging
+      setPosition({
+        x: constrainedX,
+        y: constrainedY,
+      });
+
+      // Log less frequently to avoid console spam
+      if (Math.abs(newX - position.x) > 5 || Math.abs(newY - position.y) > 5) {
+        console.log("📱 Dragging toolbox to:", {
+          x: constrainedX,
+          y: constrainedY,
+        });
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (isDragging) {
+      e.preventDefault();
+      setIsDragging(false);
     }
   };
 
@@ -119,9 +184,13 @@ export default function CircularToolbox({
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove);
+      document.addEventListener("touchend", handleTouchEnd);
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
       };
     }
   }, [isDragging, dragOffset, handleMouseMove]);
@@ -150,6 +219,7 @@ export default function CircularToolbox({
           isExpanded ? "Collapse toolbox" : "Expand toolbox (drag to move)"
         }
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
       >
         {isExpanded ? "−" : isDragging ? "🎯" : "⚙️"}
       </button>
@@ -165,6 +235,7 @@ export default function CircularToolbox({
           <div
             className="toolbox-header flex items-center justify-between mb-3 cursor-move select-none hover:bg-gray-50 rounded-lg p-1 transition-colors"
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
           >
             <div className="flex items-center gap-2">
               <h3 className="toolbox-title text-xs font-semibold text-gray-800">
