@@ -4,11 +4,11 @@ const next = require("next");
 const { Server } = require("socket.io");
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
-const port = 3000;
+const hostname = "0.0.0.0"; // Bind to all network interfaces
+const port = process.env.PORT || 3000;
 
 // Prepare the Next.js app
-const app = next({ dev, hostname, port });
+const app = next({ dev, hostname: "localhost", port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -29,7 +29,13 @@ app.prepare().then(() => {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
+      credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization"],
     },
+    transports: ["websocket", "polling"], // Enable both WebSocket and polling
+    allowEIO3: true, // Allow Engine.IO v3 clients
+    pingTimeout: 60000, // Increase ping timeout for mobile
+    pingInterval: 25000, // Adjust ping interval
   });
 
   // Socket.IO event handlers
@@ -91,8 +97,22 @@ app.prepare().then(() => {
   });
 
   // Start the server
-  server.listen(port, () => {
-    console.log(`> Ready on http://${hostname}:${port}`);
+  server.listen(port, hostname, () => {
+    console.log(`> Ready on http://localhost:${port}`);
+    console.log(`> Server bound to all network interfaces (0.0.0.0:${port})`);
     console.log("Socket.IO server is running on the same port");
+
+    // Log available network interfaces for mobile connection
+    const os = require("os");
+    const interfaces = os.networkInterfaces();
+    console.log("\n🌐 Available network interfaces for mobile connection:");
+    Object.keys(interfaces).forEach((name) => {
+      interfaces[name].forEach((interface) => {
+        if (interface.family === "IPv4" && !interface.internal) {
+          console.log(`  📱 http://${interface.address}:${port}`);
+        }
+      });
+    });
+    console.log("\n💡 Use one of the above IP addresses on your mobile device");
   });
 });

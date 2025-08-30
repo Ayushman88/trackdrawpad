@@ -78,7 +78,24 @@ export default function Trackpad() {
   useEffect(() => {
     const connectSocket = () => {
       console.log("🔌 Trackpad attempting to connect to Socket.IO server...");
-      const socket = io("http://localhost:3000");
+      
+      // Get the current host dynamically
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = process.env.NODE_ENV === 'production' 
+        ? window.location.host 
+        : process.env.NEXT_PUBLIC_WS_HOST || `${window.location.hostname}:3000`;
+      
+      const socketUrl = `${protocol}//${host}`;
+      console.log("🔌 Connecting to Socket.IO server at:", socketUrl);
+      
+      const socket = io(socketUrl, {
+        transports: ['websocket', 'polling'], // Enable fallback to polling
+        upgrade: true,
+        rememberUpgrade: true,
+        timeout: 20000,
+        forceNew: true
+      });
+      
       socketRef.current = socket;
 
       socket.on("connect", () => {
