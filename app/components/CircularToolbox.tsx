@@ -124,7 +124,7 @@ export default function CircularToolbox({
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging, dragOffset, handleMouseMove]);
 
   if (!isVisible) return null;
 

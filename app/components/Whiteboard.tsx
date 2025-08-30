@@ -205,7 +205,7 @@ export default function Whiteboard() {
     } else {
       console.log("⏳ SVG ref not yet available");
     }
-  }, [svgRef.current]);
+  }, []);
 
   const handleRemoteMouseDown = useCallback(
     (
@@ -244,7 +244,7 @@ export default function Whiteboard() {
       setRemoteCurrentPath(newPath);
       setIsRemoteDrawing(true);
     },
-    [selectedColor, selectedTool, strokeWidth]
+    [selectedColor, selectedTool]
   );
 
   const handleRemoteMouseMove = useCallback((x: number, y: number) => {
@@ -402,110 +402,6 @@ export default function Whiteboard() {
       drawingsRef.current = newDrawings;
       return newDrawings;
     });
-  };
-
-  const testDrawing = () => {
-    const testPath: DrawingPath = {
-      id: `test-${Date.now()}`,
-      points: [
-        { x: 50, y: 50 },
-        { x: 100, y: 100 },
-        { x: 150, y: 50 },
-        { x: 200, y: 100 },
-      ],
-      color: "#ff0000",
-      strokeWidth: 5,
-      tool: "pen",
-    };
-    setDrawings((prev) => [...prev, testPath]);
-  };
-
-  const testTrackpadDrawing = () => {
-    console.log("Testing trackpad drawing...");
-    const startX = 100;
-    const startY = 100;
-    const endX = 200;
-    const endY = 200;
-
-    // Simulate a complete drawing sequence
-    const testEvent: CursorEvent = {
-      type: "mousedown",
-      x: (startX / 500) * 100, // Convert to percentage
-      y: (startY / 500) * 100,
-      timestamp: Date.now(),
-    };
-    handleRemoteCursorEvent(testEvent);
-
-    // Simulate movement
-    setTimeout(() => {
-      const moveEvent: CursorEvent = {
-        type: "mousemove",
-        x: ((startX + 25) / 500) * 100,
-        y: ((startY + 25) / 500) * 100,
-        timestamp: Date.now(),
-      };
-      handleRemoteCursorEvent(moveEvent);
-    }, 100);
-
-    setTimeout(() => {
-      const moveEvent: CursorEvent = {
-        type: "mousemove",
-        x: ((startX + 50) / 500) * 100,
-        y: ((startY + 50) / 500) * 100,
-        timestamp: Date.now(),
-      };
-      handleRemoteCursorEvent(moveEvent);
-    }, 200);
-
-    setTimeout(() => {
-      const moveEvent: CursorEvent = {
-        type: "mousemove",
-        x: ((startX + 75) / 500) * 100,
-        y: ((startY + 75) / 500) * 100,
-        timestamp: Date.now(),
-      };
-      handleRemoteCursorEvent(moveEvent);
-    }, 300);
-
-    setTimeout(() => {
-      const moveEvent: CursorEvent = {
-        type: "mousemove",
-        x: (endX / 500) * 100,
-        y: (endY / 500) * 100,
-        timestamp: Date.now(),
-      };
-      handleRemoteCursorEvent(moveEvent);
-    }, 400);
-
-    setTimeout(() => {
-      const upEvent: CursorEvent = {
-        type: "mouseup",
-        x: (endX / 500) * 100,
-        y: (endY / 500) * 100,
-        timestamp: Date.now(),
-      };
-      handleRemoteCursorEvent(upEvent);
-    }, 500);
-  };
-
-  const testSocketConnection = () => {
-    console.log("🔌 Testing socket connection...");
-    if (socketRef.current) {
-      console.log("Socket connected:", socketRef.current.connected);
-      console.log("Socket ID:", socketRef.current.id);
-
-      // Send a test event
-      const testEvent = {
-        type: "mousedown",
-        x: 25,
-        y: 25,
-        timestamp: Date.now(),
-      };
-      console.log("📤 Sending test event:", testEvent);
-      socketRef.current.emit("cursor-event", testEvent);
-    } else {
-      console.log("❌ No socket reference available");
-    }
   };
 
   return (
