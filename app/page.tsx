@@ -53,7 +53,7 @@ export default function HomePage() {
               <div className="flex items-center justify-center p-3 sm:p-4 bg-blue-50 rounded-lg">
                 <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🖼️</span>
                 <div className="text-left">
-                  <div className="font-medium text-sm sm:text-base">
+                  <div className="font-medium text-sm sm:text-base text-gray-900">
                     Whiteboard
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600">
@@ -64,7 +64,7 @@ export default function HomePage() {
               <div className="flex items-center justify-center p-3 sm:p-4 bg-green-50 rounded-lg">
                 <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">📱</span>
                 <div className="text-left">
-                  <div className="font-medium text-sm sm:text-base">
+                  <div className="font-medium text-sm sm:text-base text-gray-900">
                     Trackpad
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600">
